@@ -17,7 +17,7 @@ ChatDrug is for conversational drug editing, and three types of drugs are consid
 - Peptides
 - Proteins
 <p align="left">
-  <img src="figure/protein_editing.png" width="70%" /> 
+  <img src="figure/final_demo.gif" width="100%" /> 
 </p>
 
 ## Environment
