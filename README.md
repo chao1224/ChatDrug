@@ -91,11 +91,3 @@ Please give credits to the original papers. For more details of evaluation, plea
 ## Prompt for Drug Editing
 
 All the task prompts are defined in `ChatDrug/task_and_evaluation`. you can also find it on [the hugging face link](https://huggingface.co/datasets/chao1224/ChatDrug_prompt).
-
-## Cite Us
-
-Feel free to cite this work if you find it useful to you!
-
-```
-
-```
