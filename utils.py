@@ -61,7 +61,7 @@ def load_dataset(drug_type, task, task_specification_dict):
             _, source_allele_type, _ = task_specification_dict[task]
         else:
             _, source_allele_type, _, _ = task_specification_dict[task]
-        f = open("data/peptide_editing/peptide_editing.json", "r")
+        f = open("data/peptide/peptide_editing.json", "r")
         data = json.load(f)
         test_data = data[source_allele_type]
     elif drug_type == 'protein':
@@ -151,7 +151,7 @@ def load_retrieval_DB(task, seed):
 
 def load_thredhold(drug_type):
     if drug_type == 'peptide':
-        f_threshold = open("data/peptide_editing/peptide_editing_threshold.json", 'r')
+        f_threshold = open("data/peptide/peptide_editing_threshold.json", 'r')
         threshold_dict = json.load(f_threshold)
         for k, v in threshold_dict.items():
             threshold_dict[k] = v/2
