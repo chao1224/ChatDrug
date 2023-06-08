@@ -1,11 +1,12 @@
 # ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback
 
-Authors: Shengchao Liu<sup>+</sup>, Jiongxiao Wang<sup>+</sup>, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo, Chaowei Xiao
+Authors: Shengchao Liu<sup>+</sup>, Jiongxiao Wang<sup>+</sup>, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo<sup>\*</sup>, Chaowei Xiao<sup>\*</sup>
 
-<sup>+</sup> denotes co-first authors.
+<sup>+</sup> Equal contribution<br>
+<sup>\*</sup> Equal advising
 
 [[Project Page](https://chao1224.github.io/ChatDrug)]
-[[ArXiv]()]
+[[ArXiv](https://arxiv.org/abs/2305.18090)]
 
 <p align="center">
   <img src="figure/pipeline.png" /> 
@@ -120,9 +121,13 @@ python In-Context.py --tasks task_id --saved_file save_path
 
 
 ## Cite Us
-
 Feel free to cite this work if you find it useful to you!
 
 ```
-
+@article{liu2022chatdrug,
+    title={ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback},
+    author={Shengchao Liu, Jiongxiao Wang, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo, Chaowei Xiao},
+    journal={arXiv preprint arXiv:2305.18090},
+    year={2023}
+}
 ```
