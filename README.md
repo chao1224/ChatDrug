@@ -124,7 +124,7 @@ python In-Context.py --tasks task_id --saved_file save_path
 Feel free to cite this work if you find it useful to you!
 
 ```
-@article{liu2022chatdrug,
+@article{liu2023chatdrug,
     title={ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback},
     author={Shengchao Liu, Jiongxiao Wang, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo, Chaowei Xiao},
     journal={arXiv preprint arXiv:2305.18090},
