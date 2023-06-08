@@ -1,19 +1,12 @@
 from collections import defaultdict
-<<<<<<< HEAD
-=======
 import re
 import numpy as np
 from mhcflurry import Class1PresentationPredictor
->>>>>>> cbd39786dacc7cc624594191c2e36b19f9f1cc6a
 
 AMINO_ACIDS = ["A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V"]
 
 
-<<<<<<< HEAD
-task_specification_dict = {
-=======
 task_specification_dict_peptide = {
->>>>>>> cbd39786dacc7cc624594191c2e36b19f9f1cc6a
     301: [
         "We want a peptide that binds to TARGET_ALLELE_TYPE. We have a peptide PEPTIDE_SEQUENCE that binds to SOURCE_ALLELE_TYPE, can you help modify it? The output peptide should be similar to input peptide.",
         "HLA-C*16:01", "HLA-B*44:02"

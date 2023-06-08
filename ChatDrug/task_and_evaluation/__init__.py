@@ -45,7 +45,7 @@ def evaluate(input_drug, generated_drug, task, constraint, threshold_dict):
             threshold_list = task2threshold_list[task][1]
         _, _, answer = evaluate_molecule(input_drug, generated_drug, task, threshold_list=threshold_list)
     elif task<400:
-        task_specification_dict = get_task_specification_dict('peptide')
+        task_specification_dict = get_task_specification_dict(task)
         _, _, target_allele_type = task_specification_dict[task]
         try:
             _, _, answer = evaluate_peptide([input_drug], [generated_drug], target_allele_type, [threshold_dict[target_allele_type]])
@@ -53,7 +53,7 @@ def evaluate(input_drug, generated_drug, task, constraint, threshold_dict):
             return -1
         answer = answer[0]
     elif task<500:
-        task_specification_dict = get_task_specification_dict('peptide')
+        task_specification_dict = get_task_specification_dict(task)
         _, _, target_allele_type1, target_allele_type2 = task_specification_dict[task]
         try:
             _, _, answer1 = evaluate_peptide([input_drug], [generated_drug], target_allele_type1, [threshold_dict[target_allele_type1]])

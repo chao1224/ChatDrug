@@ -4,7 +4,6 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 import torch.nn.functional as F
-
 import re
 from transformers import BertTokenizerFast
 
@@ -42,7 +41,6 @@ task_specification_dict_protein = {
     501: "We have a protein PROTEIN_SEQUENCE_PLACEHOLDER. Can you update modify it by making more amino acids into the helix structure (secondary structure)? The input and output protein sequences should be similar but different.",
     502: "We have a protein PROTEIN_SEQUENCE_PLACEHOLDER. Can you update modify it by making more amino acids into the strand structure (secondary structure)? The input and output protein sequences should be similar but different.",
 }
-
 
 
 def parse_protein(input_protein, raw_text, retrieval_sequence):

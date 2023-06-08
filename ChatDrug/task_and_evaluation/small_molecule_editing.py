@@ -67,7 +67,6 @@ def parse_molecule(input_sequence, raw_text, retrieval_sequence):
 
 
 def evaluate_molecule(input_SMILES, output_SMILES, task_id, threshold_list=[0]):
->>>>>>> cbd39786dacc7cc624594191c2e36b19f9f1cc6a
     input_mol = Chem.MolFromSmiles(input_SMILES)
     Chem.Kekulize(input_mol)
 
@@ -139,31 +138,31 @@ def evaluate_molecule(input_SMILES, output_SMILES, task_id, threshold_list=[0]):
         return input_value, output_value, output_value > input_value + threshold
 
     elif task_id == 201:
-        input_value_01, output_value_01, result_01 = evaluate_result(input_SMILES, output_SMILES, 101, [threshold_list[0]])
-        input_value_02, output_value_02, result_02 = evaluate_result(input_SMILES, output_SMILES, 107, [threshold_list[1]])
+        input_value_01, output_value_01, result_01 = evaluate_molecule(input_SMILES, output_SMILES, 101, [threshold_list[0]])
+        input_value_02, output_value_02, result_02 = evaluate_molecule(input_SMILES, output_SMILES, 107, [threshold_list[1]])
         return (input_value_01, input_value_02), (output_value_01, output_value_02), result_01 and result_02
 
     elif task_id == 202:
-        input_value_01, output_value_01, result_01 = evaluate_result(input_SMILES, output_SMILES, 102, [threshold_list[0]])
-        input_value_02, output_value_02, result_02 = evaluate_result(input_SMILES, output_SMILES, 107, [threshold_list[1]])
+        input_value_01, output_value_01, result_01 = evaluate_molecule(input_SMILES, output_SMILES, 102, [threshold_list[0]])
+        input_value_02, output_value_02, result_02 = evaluate_molecule(input_SMILES, output_SMILES, 107, [threshold_list[1]])
         return (input_value_01, input_value_02), (output_value_01, output_value_02), result_01 and result_02
 
     elif task_id == 203:
-        input_value_01, output_value_01, result_01 = evaluate_result(input_SMILES, output_SMILES, 101, [threshold_list[0]])
-        input_value_02, output_value_02, result_02 = evaluate_result(input_SMILES, output_SMILES, 108, [threshold_list[1]])
+        input_value_01, output_value_01, result_01 = evaluate_molecule(input_SMILES, output_SMILES, 101, [threshold_list[0]])
+        input_value_02, output_value_02, result_02 = evaluate_molecule(input_SMILES, output_SMILES, 108, [threshold_list[1]])
         return (input_value_01, input_value_02), (output_value_01, output_value_02), result_01 and result_02
 
     elif task_id == 204:
-        input_value_01, output_value_01, result_01 = evaluate_result(input_SMILES, output_SMILES, 102, [threshold_list[0]])
-        input_value_02, output_value_02, result_02 = evaluate_result(input_SMILES, output_SMILES, 108, [threshold_list[1]])
+        input_value_01, output_value_01, result_01 = evaluate_molecule(input_SMILES, output_SMILES, 102, [threshold_list[0]])
+        input_value_02, output_value_02, result_02 = evaluate_molecule(input_SMILES, output_SMILES, 108, [threshold_list[1]])
         return (input_value_01, input_value_02), (output_value_01, output_value_02), result_01 and result_02
 
     elif task_id == 205:
-        input_value_01, output_value_01, result_01 = evaluate_result(input_SMILES, output_SMILES, 101, [threshold_list[0]])
-        input_value_02, output_value_02, result_02 = evaluate_result(input_SMILES, output_SMILES, 105, [threshold_list[1]])
+        input_value_01, output_value_01, result_01 = evaluate_molecule(input_SMILES, output_SMILES, 101, [threshold_list[0]])
+        input_value_02, output_value_02, result_02 = evaluate_molecule(input_SMILES, output_SMILES, 105, [threshold_list[1]])
         return (input_value_01, input_value_02), (output_value_01, output_value_02), result_01 and result_02
 
     elif task_id == 206:
-        input_value_01, output_value_01, result_01 = evaluate_result(input_SMILES, output_SMILES, 101, [threshold_list[0]])
-        input_value_02, output_value_02, result_02 = evaluate_result(input_SMILES, output_SMILES, 106, [threshold_list[1]])
+        input_value_01, output_value_01, result_01 = evaluate_molecule(input_SMILES, output_SMILES, 101, [threshold_list[0]])
+        input_value_02, output_value_02, result_02 = evaluate_molecule(input_SMILES, output_SMILES, 106, [threshold_list[1]])
         return (input_value_01, input_value_02), (output_value_01, output_value_02), result_01 and result_02
