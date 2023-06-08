@@ -2,7 +2,7 @@ import sys
 import openai
 import time
 
-openai.api_key = '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'
+openai.api_key = YOUR_API_KEY
 
 def complete(messages, conversational_LLM):
     if conversational_LLM == 'chatgpt':
