@@ -1,11 +1,12 @@
 # ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback
 
-Authors: Shengchao Liu<sup>+</sup>, Jiongxiao Wang<sup>+</sup>, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo, Chaowei Xiao
+Authors: Shengchao Liu<sup>+</sup>, Jiongxiao Wang<sup>+</sup>, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo<sup>\*</sup>, Chaowei Xiao<sup>\*</sup>
 
-<sup>+</sup> denotes co-first authors.
+<sup>+</sup> Equal contribution<br>
+<sup>\*</sup> Equal advising
 
 [[Project Page](https://chao1224.github.io/ChatDrug)]
-[[ArXiv]()]
+[[ArXiv](https://arxiv.org/abs/2305.18090)]
 
 <p align="center">
   <img src="figure/pipeline.png" /> 
@@ -36,14 +37,15 @@ conda activate ChatDrug
 conda install -y -c rdkit rdkit
 conda install -y numpy networkx scikit-learn
 conda install -y -c conda-forge -c pytorch pytorch=1.9.1
-conda install -y -c pyg -c conda-forge pyg=2.0.2
 
 pip install tensorflow
 pip install mhcflurry
+pip install levenshtein
 
 pip install transformers
 pip install lmdb
 pip install seqeval
+pip install openai
 
 pip install -e .
 ```
@@ -91,3 +93,41 @@ Please give credits to the original papers. For more details of evaluation, plea
 ## Prompt for Drug Editing
 
 All the task prompts are defined in `ChatDrug/task_and_evaluation`. you can also find it on [the hugging face link](https://huggingface.co/datasets/chao1224/ChatDrug_prompt).
+
+## Usage
+
+Please provide your OpenAI API in `model_utils.py`
+
+To use ChatDrug, you need to implement PPDS module first to obtain the raw answer from ChatGPT:
+```
+python PPDS.py --tasks task_id --saved_file save_path
+```
+Then start conversation with ChatGPT by:
+```
+python Conversation.py --tasks task_id --num_round conversation_round --saved_file save_path
+```
+Results will be saved in `save_path`.
+
+For protein editing tasks, multiple evaluation times in retrieval process would consume a lot of time. Thus, we provide a fast version of conversation setting, which requires to firstly compute evaluation score of protein sequences in retrieval data base and test dataset. Running the following command to implement accelerate ChatDrug for protein editing tasks:
+```
+python protein_generate_retrieval_dict.py --tasks 5
+python Conversation_protein_fast.py --tasks 5 --num_round conversation_round --saved_file save_path
+```
+
+We also provide code for In-Context Learning setting:
+```
+python In-Context.py --tasks task_id --saved_file save_path
+```
+
+
+## Cite Us
+Feel free to cite this work if you find it useful to you!
+
+```
+@article{liu2022chatdrug,
+    title={ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback},
+    author={Shengchao Liu, Jiongxiao Wang, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo, Chaowei Xiao},
+    journal={arXiv preprint arXiv:2305.18090},
+    year={2023}
+}
+```
