@@ -96,27 +96,22 @@ All the task prompts are defined in `ChatDrug/task_and_evaluation`. you can also
 
 ## Usage
 
-Please provide your OpenAI API in `model_utils.py`
+Please provide your OpenAI API Key in `ChatDrug/task_and_evaluation/Conversational_LLMs_utils.py`
 
-To use ChatDrug, you need to implement PPDS module first to obtain the raw answer from ChatGPT:
+To use ChatDrug, please use the following command:
 ```
-python PPDS.py --tasks task_id --saved_file save_path
+python main_ChatDrug.py --task task_id --log_file results/ChatDrug.log --record_file results/ChatDrug.json --C 2
 ```
-Then start conversation with ChatGPT by:
-```
-python Conversation.py --tasks task_id --num_round conversation_round --saved_file save_path
-```
-Results will be saved in `save_path`.
+Results will be saved in `results/`.
 
-For protein editing tasks, multiple evaluation times in retrieval process would consume a lot of time. Thus, we provide a fast version of conversation setting, which requires to firstly compute evaluation score of protein sequences in retrieval data base and test dataset. Running the following command to implement accelerate ChatDrug for protein editing tasks:
+For protein editing tasks, multiple evaluation times in retrieval process would consume a lot of time. Thus, we provide a fast version of conversation setting. Running the following command to implement accelerate ChatDrug for protein editing tasks:
 ```
-python protein_generate_retrieval_dict.py --tasks 5
-python Conversation_protein_fast.py --tasks 5 --num_round conversation_round --saved_file save_path
+python main_ChatDrug.py --task task_id --log_file results/ChatDrug_fast_protein.log --record_file results/ChatDrug_fast_protein.json --C 2 --fast_protein
 ```
 
 We also provide code for In-Context Learning setting:
 ```
-python In-Context.py --tasks task_id --saved_file save_path
+python main_InContext.py --task task_id --log_file results/InContext.log --record_file results/InContext.json
 ```
 
 
