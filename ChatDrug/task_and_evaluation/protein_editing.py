@@ -4,31 +4,8 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 import torch.nn.functional as F
-
-
-task_specification_dict = {
-    501: "We have a protein PROTEIN_SEQUENCE_PLACEHOLDER. Can you update modify it by making more amino acids into the helix structure (secondary structure)? The input and output protein sequences should be similar but different.",
-    502: "We have a protein PROTEIN_SEQUENCE_PLACEHOLDER. Can you update modify it by making more amino acids into the strand structure (secondary structure)? The input and output protein sequences should be similar but different.",
-}
-
-
-def pad_sequences(sequences, constant_value=0, dtype=None) -> np.ndarray:
-    batch_size = len(sequences)
-    shape = [batch_size] + np.max([seq.shape for seq in sequences], 0).tolist()
-
-    if dtype is None:
-        dtype = sequences[0].dtype
-
-    if isinstance(sequences[0], np.ndarray):
-        array = np.full(shape, constant_value, dtype=dtype)
-    elif isinstance(sequences[0], torch.Tensor):
-        array = torch.full(shape, constant_value, dtype=dtype)
-
-    for arr, seq in zip(array, sequences):
-        arrslice = tuple(slice(dim) for dim in seq.shape)
-        arr[arrslice] = seq
-
-    return array
+import re
+from transformers import BertTokenizerFast
 
 
 def load_ProteinDT_model(input_model_path, chache_dir, mean_output, num_labels):
@@ -49,6 +26,57 @@ def load_ProteinDT_model(input_model_path, chache_dir, mean_output, num_labels):
     print("unexpected keys: {}".format(unexpected_keys))
     
     return model
+
+
+# load protein model
+device = "cuda"
+chache_dir = "data/protein_editing/temp_pretrained_ProteinDT"
+input_model_path = "data/protein_editing/pytorch_model_ss3.bin"
+protein_model = load_ProteinDT_model(input_model_path, chache_dir, mean_output=True, num_labels=3)
+protein_model = protein_model.to(device)
+protein_tokenizer = BertTokenizerFast.from_pretrained("Rostlab/prot_bert_bfd", chache_dir=chache_dir, do_lower_case=False)
+
+
+task_specification_dict_protein = {
+    501: "We have a protein PROTEIN_SEQUENCE_PLACEHOLDER. Can you update modify it by making more amino acids into the helix structure (secondary structure)? The input and output protein sequences should be similar but different.",
+    502: "We have a protein PROTEIN_SEQUENCE_PLACEHOLDER. Can you update modify it by making more amino acids into the strand structure (secondary structure)? The input and output protein sequences should be similar but different.",
+}
+
+
+def parse_protein(input_protein, raw_text, retrieval_sequence):
+    pattern = re.compile('[A-Z]{5,}')
+    output_protein_list = pattern.findall(raw_text)
+    while input_protein in output_protein_list:
+        output_protein_list.remove(input_protein)
+
+    if retrieval_sequence!=None:
+        while retrieval_sequence in output_protein_list:
+            output_protein_list.remove(retrieval_sequence)
+
+    if len(output_protein_list) > 0:
+        output_protein = output_protein_list[0][:1024]
+        return [output_protein]
+    else:
+        return []
+
+
+def pad_sequences(sequences, constant_value=0, dtype=None) -> np.ndarray:
+    batch_size = len(sequences)
+    shape = [batch_size] + np.max([seq.shape for seq in sequences], 0).tolist()
+
+    if dtype is None:
+        dtype = sequences[0].dtype
+
+    if isinstance(sequences[0], np.ndarray):
+        array = np.full(shape, constant_value, dtype=dtype)
+    elif isinstance(sequences[0], torch.Tensor):
+        array = torch.full(shape, constant_value, dtype=dtype)
+
+    for arr, seq in zip(array, sequences):
+        arrslice = tuple(slice(dim) for dim in seq.shape)
+        arr[arrslice] = seq
+
+    return array
 
 
 class ProteinSecondaryStructureDataset(Dataset):
@@ -148,26 +176,26 @@ def tokenize_sequences(tokenizer, sequence_list, labels):
 
 
 @torch.no_grad()
-def evaluate_result(model, tokenizer, input_protein_sequence, output_protein_sequence, labels, task_id, device="cuda"):
+def evaluate_result(input_protein_sequence, output_protein_sequence, labels, task_id, device="cuda"):
     """
     sequence_list = [input_sequence, output_sequence]
     labels: ground-truth SS-3/SS-8 labels for input_sequence
     """
     sequence_list = [input_protein_sequence, output_protein_sequence]
-    input_ids, attention_mask, labels = tokenize_sequences(tokenizer, sequence_list, labels)
+    input_ids, attention_mask, labels = tokenize_sequences(protein_tokenizer, sequence_list, labels)
 
     input_ids = input_ids.to(device)
     attention_mask = attention_mask.to(device)
     labels = labels.to(device)
 
-    output = model(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
+    output = protein_model(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
     logits = output.logits  # [2, seq_length, 3]
     predicted_labels = F.softmax(logits, dim=-1)  # [2, seq_length, 3]
     predicted_labels = predicted_labels.argmax(dim=-1)  # [2, seq_length]
 
-    if task_id == 701:
+    if task_id == 501:
         target_label = 0
-    elif task_id == 702:
+    elif task_id == 502:
         target_label = 1
 
     input_predicted_labels, output_predicted_labels = predicted_labels
@@ -207,19 +235,19 @@ class ProteinListDataset(Dataset):
 
 
 @torch.no_grad()
-def evaluate_pairwise_list_result(model, tokenizer, input_protein_list, output_protein_list, task_id, device="cuda"):
+def evaluate_pairwise_list_result(input_protein_list, output_protein_list, task_id, device="cuda"):
     from torch.utils.data import DataLoader
 
     batch_size = 16
-    input_dataset = ProteinListDataset(input_protein_list, tokenizer=tokenizer, task_id=task_id)
+    input_dataset = ProteinListDataset(input_protein_list, tokenizer=protein_tokenizer, task_id=task_id)
     input_dataloader = DataLoader(input_dataset, batch_size=batch_size, shuffle=False, num_workers=0, collate_fn=input_dataset.collate_fn)
 
-    output_dataset = ProteinListDataset(output_protein_list, tokenizer=tokenizer, task_id=task_id)
+    output_dataset = ProteinListDataset(output_protein_list, tokenizer=protein_tokenizer, task_id=task_id)
     output_dataloader = DataLoader(output_dataset, batch_size=batch_size, shuffle=False, num_workers=0, collate_fn=input_dataset.collate_fn)
 
-    if task_id == 701:
+    if task_id == 501:
         target_label = 0
-    elif task_id == 702:
+    elif task_id == 502:
         target_label = 1
 
     def get_target_label_count_list(dataloader, target_label):
@@ -228,7 +256,7 @@ def evaluate_pairwise_list_result(model, tokenizer, input_protein_list, output_p
             input_ids, attention_mask = batch["input_ids"], batch["attention_mask"]
             input_ids = input_ids.to(device)
             attention_mask = attention_mask.to(device)
-            output = model(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
+            output = protein_model(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
 
             logits = output.logits  # [B, seq_length, 3]
             predicted_labels = F.softmax(logits, dim=-1)  # [B, seq_length, 3]
@@ -246,3 +274,83 @@ def evaluate_pairwise_list_result(model, tokenizer, input_protein_list, output_p
     output_count_list = get_target_label_count_list(output_dataloader, target_label)
 
     return input_count_list, output_count_list, output_count_list > input_count_list
+
+
+@torch.no_grad()
+def evaluate_fast_protein_dict(input_protein_list, task_id, device="cuda"):
+    from torch.utils.data import DataLoader
+
+    batch_size = 128
+    input_dataset = ProteinListDataset(input_protein_list, tokenizer=protein_tokenizer, task_id=task_id)
+    input_dataloader = DataLoader(input_dataset, batch_size=batch_size, shuffle=False, num_workers=0, collate_fn=input_dataset.collate_fn)
+
+    if task_id == 501:
+        target_label = 0
+    elif task_id == 502:
+        target_label = 1
+
+    def get_target_label_count_list(dataloader, target_label):
+        count_list = []
+        for batch in dataloader:
+            input_ids, attention_mask = batch["input_ids"], batch["attention_mask"]
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            output = protein_model(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
+
+            logits = output.logits  # [B, seq_length, 3]
+            predicted_labels = F.softmax(logits, dim=-1)  # [B, seq_length, 3]
+            predicted_labels = predicted_labels.argmax(dim=-1)  # [B, seq_length]
+
+            temp_count_list = ((predicted_labels == target_label) * attention_mask)
+            temp_count_list = temp_count_list.sum(dim=1)  # [B]
+            count_list.append(temp_count_list.detach().cpu().numpy())
+        
+        count_list = np.concatenate(count_list)
+        print("count_list", count_list.shape)
+        return count_list
+
+    input_count_list = get_target_label_count_list(input_dataloader, target_label)
+
+    return input_count_list
+
+
+@torch.no_grad()
+def evaluate_fast_protein(input_protein_list, output_protein_list, task_id, dict_sequence, device="cuda"):
+    from torch.utils.data import DataLoader
+
+    batch_size = 1
+    output_dataset = ProteinListDataset(output_protein_list, tokenizer=protein_tokenizer, task_id=task_id)
+    output_dataloader = DataLoader(output_dataset, batch_size=batch_size, shuffle=False, num_workers=0, collate_fn=output_dataset.collate_fn)
+
+    if task_id == 501:
+        target_label = 0
+    elif task_id == 502:
+        target_label = 1
+
+    def get_target_label_count_list(dataloader, target_label):
+        count_list = []
+        for batch in dataloader:
+            input_ids, attention_mask = batch["input_ids"], batch["attention_mask"]
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            output = protein_model(input_ids=input_ids, attention_mask=attention_mask, return_dict=True)
+
+            logits = output.logits  # [B, seq_length, 3]
+            predicted_labels = F.softmax(logits, dim=-1)  # [B, seq_length, 3]
+            predicted_labels = predicted_labels.argmax(dim=-1)  # [B, seq_length]
+
+            temp_count_list = ((predicted_labels == target_label) * attention_mask)
+            temp_count_list = temp_count_list.sum(dim=1)  # [B]
+            count_list.append(temp_count_list.detach().cpu().numpy())
+        
+        count_list = np.concatenate(count_list)
+        print("count_list", count_list.shape)
+        return count_list
+
+    output_count_list = get_target_label_count_list(output_dataloader, target_label)
+
+    input_count_list = []
+    for sequence in input_protein_list:
+        input_count_list.append(dict_sequence[sequence])
+
+    return output_count_list > input_count_list
