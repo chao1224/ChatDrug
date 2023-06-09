@@ -89,6 +89,7 @@ def load_retrieval_DB(task, seed):
         DBfile = 'data/retrieval/moleculeDB.csv'
         task_specification_dict = get_task_specification_dict(task)
         input_drug_list = load_dataset(drug_type, task, task_specification_dict)
+        input_drug_list = list(set(input_drug_list))
         DB = pd.read_csv(DBfile)
         DB = DB[['smiles']]
         DB = DB.rename(columns={"smiles": "sequence"})
@@ -104,6 +105,7 @@ def load_retrieval_DB(task, seed):
         task_specification_dict = get_task_specification_dict(task)
         target_allele_type = task_specification_dict[task][2]
         input_drug_list = load_dataset(drug_type, task, task_specification_dict)
+        input_drug_list = list(set(input_drug_list))
         DB = pd.read_csv(DBfile)
         DB = DB[DB['allele']==target_allele_type]
         DB = DB[['peptide']]
@@ -120,6 +122,7 @@ def load_retrieval_DB(task, seed):
         target_allele_type1 = task_specification_dict[task][2]
         target_allele_type2 = task_specification_dict[task][3]
         input_drug_list = load_dataset(drug_type, task, task_specification_dict)
+        input_drug_list = list(set(input_drug_list))
         DB = pd.read_csv(DBfile)
         DB1 = DB[DB['allele']==target_allele_type1]
         DB1 = DB1[['peptide']]
@@ -139,6 +142,7 @@ def load_retrieval_DB(task, seed):
         drug_type = 'protein'
         task_specification_dict = get_task_specification_dict(task)
         input_drug_list = load_dataset(drug_type, task, task_specification_dict)
+        input_drug_list = list(set(input_drug_list))
         DBfile = load_dataset('retrieval', task, task_specification_dict)
         DB = pd.DataFrame(DBfile)
         DB = DB.rename(columns={0: "sequence"})

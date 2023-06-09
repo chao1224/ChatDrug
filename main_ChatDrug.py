@@ -22,7 +22,6 @@ def conversation(messages, conversational_LLM, C, round_index, trial_index, task
     
     record[input_drug]['retrieval_conversation'][round_index]['user'] = messages[2*round_index +1]["content"]
     record[input_drug]['retrieval_conversation'][round_index]['chatgpt'] = generated_text
-    # record[input_drug]['retrieval_conversation'][round_index]['generated_drug'] = None
 
     if round_index > 1:
         closest_drug = record[input_drug]['retrieval_conversation'][round_index-1]['retrieval_drug']
@@ -130,15 +129,13 @@ def main(args):
                 drug_type=drug_type, input_drug=input_drug, retrieval_DB=retrieval_DB, 
                 record=record, logfile=f, fast_protein=args['fast_protein'], constraint=args['constraint'], 
                 threshold_dict=threshold_dict, sim_DB_dict=sim_DB_dict, test_example_dict=test_example_dict)
-            # answer, output_drug = conversation(
-            #     messages, args['conversational_LLM'], args['C'], round_index, 
-            #     args['trial_index'], args['task'], drug_type, input_drug, retrieval_DB, 
-            #     record, f, args['fast_protein'], args['constraint'], threshold_dict, 
-            #     sim_DB_dict, test_example_dict)              
+           
             if answer != 0 or output_drug == None:
                 break         
         
-        if answer:
+        if answer == -1:
+            continue
+        elif answer:
             num_correct += 1
             num_all += 1
         else:

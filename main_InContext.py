@@ -18,7 +18,6 @@ def main(args):
 
     num_correct = 0
     num_all = 0
-    num_skip = 0
 
     for index, input_drug in enumerate(input_drug_list):
         print(f">>Sample {index}", f)
@@ -41,7 +40,6 @@ def main(args):
             else:
                 print('Invalid drug. Failed to evaluate. Skipped.', f)
                 record[input_drug]['drug_skip'] = 1
-                num_skip += 1
             continue
             
         print("Retrieval Result:" + closest_drug, f)
@@ -63,7 +61,6 @@ def main(args):
         # Check Parsing Results
         if generated_drug_list == None:
             record[input_drug]['drug_skip'] = 1
-            num_skip += 1
             continue
         elif len(generated_drug_list) == 0:
             record[input_drug]['answer'] = 'False'
@@ -78,7 +75,6 @@ def main(args):
 
         if answer == -1:
             record[input_drug]['drug_skip'] = 1
-            num_skip += 1
             continue
 
         print('Evaluation result is: ' + str(answer), f)
@@ -90,11 +86,11 @@ def main(args):
         else:
             num_all += 1
 
-        print(f'Acc = {num_correct}/{(num_all-num_skip)}', f)
+        print(f'Acc = {num_correct}/{num_all}', f)
         print("----------------", f)
 
     print("--------Final Acc--------", f)
-    print(f'Acc = {num_correct}/{(num_all-num_skip)}', f)
+    print(f'Acc = {num_correct}/{num_all}', f)
     print("----------------", f)
 
     with open(args['record_file'], 'w') as rf:
