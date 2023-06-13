@@ -61,7 +61,7 @@ def load_dataset(drug_type, task, task_specification_dict):
             _, source_allele_type, _ = task_specification_dict[task]
         else:
             _, source_allele_type, _, _ = task_specification_dict[task]
-        f = open("data/peptide_editing/peptide_editing.json", "r")
+        f = open("data/peptide/peptide_editing.json", "r")
         data = json.load(f)
         test_data = data[source_allele_type]
     elif drug_type == 'protein':
@@ -86,7 +86,7 @@ def load_dataset(drug_type, task, task_specification_dict):
 def load_retrieval_DB(task, seed):
     if task < 300:
         drug_type = 'molecule'
-        DBfile = 'data/smale_molecule/250k_rndm_zinc_drugs_clean_3.csv'
+        DBfile = 'data/retrieval/moleculeDB.csv'
         task_specification_dict = get_task_specification_dict(task)
         input_drug_list = load_dataset(drug_type, task, task_specification_dict)
         input_drug_list = list(set(input_drug_list))
@@ -100,7 +100,7 @@ def load_retrieval_DB(task, seed):
 
     elif task<400:
         drug_type = 'peptide'
-        DBfile = 'data/peptide_editing/Data_S3.csv'
+        DBfile = 'data/retrieval/Data_S3.csv'
 
         task_specification_dict = get_task_specification_dict(task)
         target_allele_type = task_specification_dict[task][2]
@@ -116,7 +116,7 @@ def load_retrieval_DB(task, seed):
 
     elif task<500:
         drug_type = 'peptide'
-        DBfile = 'data/peptide_editing/Data_S3.csv'
+        DBfile = 'data/retrieval/Data_S3.csv'
 
         task_specification_dict = get_task_specification_dict(task)
         target_allele_type1 = task_specification_dict[task][2]
@@ -155,7 +155,7 @@ def load_retrieval_DB(task, seed):
 
 def load_thredhold(drug_type):
     if drug_type == 'peptide':
-        f_threshold = open("data/peptide_editing/peptide_editing_threshold.json", 'r')
+        f_threshold = open("data/peptide/peptide_editing_threshold.json", 'r')
         threshold_dict = json.load(f_threshold)
         for k, v in threshold_dict.items():
             threshold_dict[k] = v/2

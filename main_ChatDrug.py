@@ -155,7 +155,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # required arguments
-    parser.add_argument('--task', action='store', required=True, type=int, help='task_id')
+    parser.add_argument('--task', action='store', required=True, help='task_id')
     parser.add_argument('--conversational_LLM', action='store', required=False, type=str, default='chatgpt', help='only support chatgpt now')
     parser.add_argument('--log_file', action='store', required=False, type=str, default='results/ChatDrug.log', help='saved log file name')
     parser.add_argument('--record_file', action='store', required=False, type=str, default='results/ChatDrug.json', help='saved record file name')
