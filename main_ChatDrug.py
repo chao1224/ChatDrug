@@ -16,9 +16,9 @@ def conversation(messages, conversational_LLM, C, round_index, trial_index, task
     generated_text = complete(messages, conversational_LLM)
     messages.append({"role": "assistant", "content": generated_text})
     
-    print("----------------", logfile)
-    print("User:" + messages[2*round_index+1]["content"], logfile)
-    print("ChatGPT:" + generated_text, logfile)
+    print("----------------", file=logfile)
+    print("User:" + messages[2*round_index+1]["content"], file=logfile)
+    print("ChatGPT:" + generated_text, file=logfile)
     
     record[input_drug]['retrieval_conversation'][round_index]['user'] = messages[2*round_index +1]["content"]
     record[input_drug]['retrieval_conversation'][round_index]['chatgpt'] = generated_text
@@ -38,7 +38,7 @@ def conversation(messages, conversational_LLM, C, round_index, trial_index, task
         return 0, None
     else:
         generated_drug = generated_drug_list[:min(len(generated_drug_list),5)][trial_index]
-        print("Generated Result:"+str(generated_drug), logfile)
+        print("Generated Result:"+str(generated_drug), file=logfile)
         record[input_drug]['retrieval_conversation'][round_index]['generated_drug'] = generated_drug
     
     # Check Evaluation Results
@@ -52,7 +52,7 @@ def conversation(messages, conversational_LLM, C, round_index, trial_index, task
         record[input_drug]['skip_round'] = round_index
         return -1, None
 
-    print('Evaluation result is: '+str(answer), logfile)
+    print('Evaluation result is: '+str(answer), file=logfile)
     record[input_drug]['retrieval_conversation'][round_index]['answer']=str(answer)
 
     if answer:
@@ -68,7 +68,7 @@ def conversation(messages, conversational_LLM, C, round_index, trial_index, task
 def ReDF(messages, round_index, task, drug_type, input_drug, generated_drug, 
         retrieval_DB, record, logfile, fast_protein, constraint, threshold_dict, 
         sim_DB_dict, test_example_dict):
-    print(f'Start Retrieval {round_index+1}', logfile)
+    print(f'Start Retrieval {round_index+1}', file=logfile)
     try:
         if drug_type=='protein' and fast_protein:
             closest_drug = retrieve_and_feedback_fast_protein(task, sim_DB_dict, test_example_dict, input_drug, generated_drug)
@@ -77,14 +77,14 @@ def ReDF(messages, round_index, task, drug_type, input_drug, generated_drug,
     except:
         error = sys.exc_info()
         if error[0] == Exception:
-            print('Cannot find a retrieval result.', logfile)
+            print('Cannot find a retrieval result.', file=logfile)
             return 0, None
         else:
-            print('Invalid drug. Failed to evaluate. Skipped.', logfile)
+            print('Invalid drug. Failed to evaluate. Skipped.', file=logfile)
             record[input_drug]['skip_round'] = round_index
             return -1, None
 
-    print("Retrieval Result:" + closest_drug, logfile)
+    print("Retrieval Result:" + closest_drug, file=logfile)
     record[input_drug]['retrieval_conversation'][round_index]['retrieval_drug'] = closest_drug
 
     prompt_ReDF = f'Your provided sequence {generated_drug} is not correct. We find a sequence {closest_drug} which is correct and similar to the {drug_type} you provided. Can you give me a new {drug_type}?'
@@ -108,7 +108,7 @@ def main(args):
     num_all = 0
 
     for index, input_drug in enumerate(input_drug_list):
-        print(f">>Sample {index}", f)
+        print(f">>Sample {index}", file=f)
         
         # init record[input_drug]
         record[input_drug]={}
@@ -119,7 +119,7 @@ def main(args):
         messages = [{"role": "system", "content": "You are an expert in the field of molecular chemistry."}]
 
         # PDDS
-        PDDS_prompt = construct_PDDS_prompt(task_specification_dict, input_drug, args['task'])
+        PDDS_prompt = construct_PDDS_prompt(task_specification_dict, input_drug, drug_type, args['task'])
         messages.append({"role": "user", "content": PDDS_prompt})
 
         for round_index in range((args['C']+1)):
@@ -141,12 +141,12 @@ def main(args):
         else:
             num_all += 1
 
-        print(f'Acc = {num_correct}/{num_all}', f)
-        print("----------------", f)
+        print(f'Acc = {num_correct}/{num_all}', file=f)
+        print("----------------", file=f)
 
-    print("--------Final Acc--------", f)
-    print(f'Acc = {num_correct}/{num_all}', f)
-    print("----------------", f)
+    print("--------Final Acc--------", file=f)
+    print(f'Acc = {num_correct}/{num_all}', file=f)
+    print("----------------", file=f)
 
     with open(args['record_file'], 'w') as rf:
         json.dump(record, rf, ensure_ascii=False)

@@ -20,7 +20,7 @@ def main(args):
     num_all = 0
 
     for index, input_drug in enumerate(input_drug_list):
-        print(f">>Sample {index}", f)
+        print(f">>Sample {index}", file=f)
 
         record[input_drug]={}
         record[input_drug]['drug_skip'] = 0
@@ -28,21 +28,21 @@ def main(args):
         # ChatGPT message
         messages = [{"role": "system", "content": "You are an expert in the field of molecular chemistry."}]
 
-        print(f'Start Retrieval', f)
+        print(f'Start Retrieval', file=f)
         try:
             closest_drug = retrieve_and_feedback(args['task'], retrieval_DB, input_drug, input_drug, args['constraint'], threshold_dict)
         except:
             error = sys.exc_info()
             if error[0] == Exception:
-                print('Cannot find a retrieval result.', f)
+                print('Cannot find a retrieval result.', file=f)
                 record[input_drug]['answer'] = 'False'
                 num_all += 1
             else:
-                print('Invalid drug. Failed to evaluate. Skipped.', f)
+                print('Invalid drug. Failed to evaluate. Skipped.', file=f)
                 record[input_drug]['drug_skip'] = 1
             continue
             
-        print("Retrieval Result:" + closest_drug, f)
+        print("Retrieval Result:" + closest_drug, file=f)
         record[input_drug]['retrieval_drug'] = closest_drug
 
         prompt = construct_prompt_incontext(task_specification_dict, input_drug, drug_type, closest_drug, args['task'])
@@ -51,9 +51,9 @@ def main(args):
         generated_text = complete(messages, args['conversational_LLM'])
         messages.append({"role": "assistant", "content": generated_text})
 
-        print("----------------", f)
-        print("User:" + prompt, f)
-        print("ChatGPT:" + generated_text, f)
+        print("----------------", file=f)
+        print("User:" + prompt, file=f)
+        print("ChatGPT:" + generated_text, file=f)
         record[input_drug]['user'] = prompt
         record[input_drug]['chatgpt'] = generated_text
 
@@ -68,7 +68,7 @@ def main(args):
             continue
         else:
             generated_drug = generated_drug_list[0]
-            print("Generated Result:" + str(generated_drug), f)
+            print("Generated Result:" + str(generated_drug), file=f)
             record[input_drug]['generated_drug'] = generated_drug
 
         answer = evaluate(input_drug, generated_drug, args['task'], args['constraint'], threshold_dict)
@@ -77,7 +77,7 @@ def main(args):
             record[input_drug]['drug_skip'] = 1
             continue
 
-        print('Evaluation result is: ' + str(answer), f)
+        print('Evaluation result is: ' + str(answer), file=f)
         record[input_drug]['answer'] = str(answer)
 
         if answer:
@@ -86,12 +86,12 @@ def main(args):
         else:
             num_all += 1
 
-        print(f'Acc = {num_correct}/{num_all}', f)
-        print("----------------", f)
+        print(f'Acc = {num_correct}/{num_all}', file=f)
+        print("----------------", file=f)
 
-    print("--------Final Acc--------", f)
-    print(f'Acc = {num_correct}/{num_all}', f)
-    print("----------------", f)
+    print("--------Final Acc--------", file=f)
+    print(f'Acc = {num_correct}/{num_all}', file=f)
+    print("----------------", file=f)
 
     with open(args['record_file'], 'w') as rf:
         json.dump(record, rf, ensure_ascii=False)

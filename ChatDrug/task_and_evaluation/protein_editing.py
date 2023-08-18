@@ -30,8 +30,8 @@ def load_ProteinDT_model(input_model_path, chache_dir, mean_output, num_labels):
 
 # load protein model
 device = "cuda"
-chache_dir = "data/protein_editing/temp_pretrained_ProteinDT"
-input_model_path = "data/protein_editing/pytorch_model_ss3.bin"
+chache_dir = "data/protein/temp_pretrained_ProteinDT"
+input_model_path = "data/protein/pytorch_model_ss3.bin"
 protein_model = load_ProteinDT_model(input_model_path, chache_dir, mean_output=True, num_labels=3)
 protein_model = protein_model.to(device)
 protein_tokenizer = BertTokenizerFast.from_pretrained("Rostlab/prot_bert_bfd", chache_dir=chache_dir, do_lower_case=False)
