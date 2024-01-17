@@ -1,10 +1,13 @@
 # ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback
 
+**ICLR 2024**
+
 Authors: Shengchao Liu<sup>+</sup>, Jiongxiao Wang<sup>+</sup>, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo<sup>\*</sup>, Chaowei Xiao<sup>\*</sup>
 
 <sup>+</sup> Equal contribution<br>
 <sup>\*</sup> Equal advising
 
+[[Paper](https://openreview.net/forum?id=yRrPfKyJQ2)]
 [[Project Page](https://chao1224.github.io/ChatDrug)]
 [[ArXiv](https://arxiv.org/abs/2305.18090)]
 
@@ -119,10 +122,11 @@ python main_InContext.py --task task_id --log_file results/InContext.log --recor
 Feel free to cite this work if you find it useful to you!
 
 ```
-@article{liu2023chatdrug,
-    title={ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback},
+@inproceedings{liu2024chatdrug,
+    title={Conversational Drug Editing Using Retrieval and Domain Feedback},
     author={Shengchao Liu, Jiongxiao Wang, Yijin Yang, Chengpeng Wang, Ling Liu, Hongyu Guo, Chaowei Xiao},
-    journal={arXiv preprint arXiv:2305.18090},
-    year={2023}
+    booktitle={The Twelfth International Conference on Learning Representations},
+    year={2024},
+    url={https://openreview.net/forum?id=yRrPfKyJQ2}
 }
 ```
