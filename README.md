@@ -1,4 +1,4 @@
-# ChatGPT-powered Conversational Drug Editing Using Retrieval and Domain Feedback
+# Conversational Drug Editing Using Retrieval and Domain Feedback
 
 **ICLR 2024**
 
