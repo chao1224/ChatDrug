@@ -31,6 +31,26 @@ def construct_PDDS_prompt(task_specification_dict, input_drug, drug_type, task):
         prompt = prompt + ' No explanation is needed.'
     return prompt
 
+def construct_PDDS_prompt_galactica(task_specification_dict, input_drug, drug_type, task):
+    if drug_type == 'molecule':
+        task_prompt_template = task_specification_dict[task]
+        prompt = task_prompt_template.replace('SMILES_PLACEHOLDER', "[START_I_SMILES]"+input_drug+"[END_I_SMILES]")
+        prompt = "Question: "+prompt +"\n\nAnswer:"
+    if drug_type == 'peptide':
+        if task < 400: 
+            task_prompt_template, source_allele_type, target_allele_type = task_specification_dict[task]
+            prompt = task_prompt_template.replace("SOURCE_ALLELE_TYPE", source_allele_type).replace("TARGET_ALLELE_TYPE", target_allele_type).replace("PEPTIDE_SEQUENCE", input_drug)
+        else: 
+            task_prompt_template, source_allele_type, target_allele_type1, target_allele_type2 = task_specification_dict[task]
+            prompt = task_prompt_template.replace("SOURCE_ALLELE_TYPE", source_allele_type).replace("TARGET_ALLELE_TYPE_01", target_allele_type1).replace("TARGET_ALLELE_TYPE_02", target_allele_type2).replace("PEPTIDE_SEQUENCE", input_drug)
+        # prompt = prompt + ' Please provide the possible modified peptide sequence only. No explanation is needed.'
+        prompt = "Question: "+prompt +"\n\nAnswer:"
+    if drug_type == 'protein':
+        task_prompt_template = task_specification_dict[task]
+        prompt = task_prompt_template.replace("PROTEIN_SEQUENCE_PLACEHOLDER", "[START_AMINO]"+input_drug+"[END_AMINO]")
+        # prompt = prompt + ' No explanation is needed.'
+        prompt = "Question: "+prompt +"\n\nAnswer:"
+    return prompt
 
 def construct_prompt_incontext(task_specification_dict, input_drug, drug_type, closest_smiles, task):
     if drug_type == 'molecule':
@@ -61,19 +81,19 @@ def load_dataset(drug_type, task, task_specification_dict):
             _, source_allele_type, _ = task_specification_dict[task]
         else:
             _, source_allele_type, _, _ = task_specification_dict[task]
-        f = open("data/peptide_editing/peptide_editing.json", "r")
+        f = open("data/peptide/peptide_editing.json", "r")
         data = json.load(f)
         test_data = data[source_allele_type]
     elif drug_type == 'protein':
-        data_dir = "./data/protein_editing/downstream_datasets"
-        chache_dir = "./data/protein_editing/temp_pretrained_ProteinDT"
+        data_dir = "./data/protein/downstream_datasets"
+        chache_dir = "./data/protein/temp_pretrained_ProteinDT"
         data_file = os.path.join(data_dir, "secondary_structure", "secondary_structure_cb513.lmdb")
         tokenizer = BertTokenizerFast.from_pretrained("Rostlab/prot_bert_bfd", chache_dir=chache_dir, do_lower_case=False)
         dataset = ProteinSecondaryStructureDataset(data_file, tokenizer)
         test_data = dataset.protein_sequence_list
     elif drug_type == 'retrieval':
-        data_dir = "./data/protein_editing/downstream_datasets"
-        chache_dir = "./data/protein_editing/temp_pretrained_ProteinDT"
+        data_dir = "./data/protein/downstream_datasets"
+        chache_dir = "./data/protein/temp_pretrained_ProteinDT"
         data_file = os.path.join(data_dir, "secondary_structure", "secondary_structure_train.lmdb")
         tokenizer = BertTokenizerFast.from_pretrained("Rostlab/prot_bert_bfd", chache_dir=chache_dir, do_lower_case=False)
         dataset = ProteinSecondaryStructureDataset(data_file, tokenizer)
@@ -100,7 +120,7 @@ def load_retrieval_DB(task, seed):
 
     elif task<400:
         drug_type = 'peptide'
-        DBfile = 'data/peptide_editing/Data_S3.csv'
+        DBfile = 'data/peptide/Data_S3.csv'
 
         task_specification_dict = get_task_specification_dict(task)
         target_allele_type = task_specification_dict[task][2]
@@ -116,7 +136,7 @@ def load_retrieval_DB(task, seed):
 
     elif task<500:
         drug_type = 'peptide'
-        DBfile = 'data/peptide_editing/Data_S3.csv'
+        DBfile = 'data/peptide/Data_S3.csv'
 
         task_specification_dict = get_task_specification_dict(task)
         target_allele_type1 = task_specification_dict[task][2]
@@ -155,7 +175,7 @@ def load_retrieval_DB(task, seed):
 
 def load_thredhold(drug_type):
     if drug_type == 'peptide':
-        f_threshold = open("data/peptide_editing/peptide_editing_threshold.json", 'r')
+        f_threshold = open("data/peptide/peptide_editing_threshold.json", 'r')
         threshold_dict = json.load(f_threshold)
         for k, v in threshold_dict.items():
             threshold_dict[k] = v/2
@@ -228,20 +248,20 @@ def generate_retrieval_dict(task, input_drug_list, DB, saved_file):
     sim_DB_list = sim_DB['sequence'].tolist()
 
     device = "cuda"
-    chache_dir = "./data/protein_editing/temp_pretrained_ProteinDT"
-    input_model_path = "./data/protein_editing/pytorch_model_ss3.bin"
+    chache_dir = "./data/protein/temp_pretrained_ProteinDT"
+    input_model_path = "./data/protein/pytorch_model_ss3.bin"
     model = load_ProteinDT_model(input_model_path, chache_dir, mean_output=True, num_labels=3)
     model = model.to(device)
     tokenizer = BertTokenizerFast.from_pretrained("Rostlab/prot_bert_bfd", chache_dir=chache_dir, do_lower_case=False)
 
-    input_count_list = evaluate_fast_protein_dict(model=model, tokenizer=tokenizer, input_protein_list=sim_DB_list, task_id=task, device=device)
+    input_count_list = evaluate_fast_protein_dict(input_protein_list=sim_DB_list, task_id=task, device=device)
     sim_DB_dict = dict(zip(sim_DB_list, input_count_list))
     np.save(saved_file + '/sim_DB_dict_'+str(task)+'.npy', sim_DB_dict)
 
     test_example_list = []
     for input_drug in input_drug_list:
         test_example_list.append(input_drug)
-    test_count_list = evaluate_fast_protein_dict(model=model, tokenizer=tokenizer, input_protein_list=test_example_list, task_id=task, device=device)
+    test_count_list = evaluate_fast_protein_dict(input_protein_list=test_example_list, task_id=task, device=device)
     test_example_dict = dict(zip(test_example_list, test_count_list))
     np.save(saved_file + '/test_example_dict_'+str(task)+'.npy', test_example_dict)
     return sim_DB_dict, test_example_dict

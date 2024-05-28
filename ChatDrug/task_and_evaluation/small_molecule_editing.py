@@ -1,5 +1,6 @@
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors
+import re
 
 props = ["MolLogP", "qed", "TPSA", "NumHAcceptors", "NumHDonors"]
 prop_pred = [(n, func) for n, func in Descriptors.descList if n.split("_")[-1] in props]
@@ -47,23 +48,40 @@ task2threshold_list = {
 }
 
 
-def parse_molecule(input_sequence, raw_text, retrieval_sequence):
-    record=[]
-    for line in raw_text.strip().split("\n"):
-        line = line.strip()
-        # for same molecule return
-        line += " "
-        line = line.replace(input_sequence + " ", " ")
-        if retrieval_sequence != None:
-            line = line.replace(retrieval_sequence + " ", " ")
-        if line.startswith("- "):
-            output_SMILES = line[2:]
-            output_SMILES = output_SMILES.split(" ")[0]
-            record.append(output_SMILES)
-    while '' in record:
-        record.remove('')
+# def parse_molecule(input_sequence, raw_text, retrieval_sequence):
+#     record=[]
+#     for line in raw_text.strip().split("\n"):
+#         line = line.strip()
+#         # for same molecule return
+#         line += " "
+#         line = line.replace(input_sequence + " ", " ")
+#         if retrieval_sequence != None:
+#             line = line.replace(retrieval_sequence + " ", " ")
+#         if line.startswith("- "):
+#             output_SMILES = line[2:]
+#             output_SMILES = output_SMILES.split(" ")[0]
+#             record.append(output_SMILES)
+#     while '' in record:
+#         record.remove('')
 
-    return record
+#     return record
+
+
+def parse_molecule(input_sequence, raw_text, retrieval_sequence):
+    pattern = re.compile(r'[0-9BCOHNSOPrIFlanocs@+\.\-\[\]\(\)\\\/%=#$]{6,}')
+    output_sequence_list = pattern.findall(raw_text)
+    while input_sequence in output_sequence_list:
+        output_sequence_list.remove(input_sequence)
+
+    if retrieval_sequence!=None:
+        while retrieval_sequence in output_sequence_list:
+            output_sequence_list.remove(retrieval_sequence)
+
+    if len(output_sequence_list) > 0:
+        output_sequence = [output_sequence_list[0]]
+    else:
+        output_sequence=[]
+    return output_sequence
 
 
 def evaluate_molecule(input_SMILES, output_SMILES, task_id, threshold_list=[0]):

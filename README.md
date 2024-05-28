@@ -35,9 +35,9 @@ export PATH=$PWD/anaconda3/bin:$PATH
 
 Then download the required python packages:
 ```bash
-conda create -n ChatDrug python=3.7
+conda create -n ChatDrug python=3.8
 conda activate ChatDrug
-conda install -y -c rdkit rdkit
+pip install rdkit-pypi==2022.9.4
 conda install -y numpy networkx scikit-learn
 conda install -y -c conda-forge -c pytorch pytorch=1.9.1
 
@@ -49,6 +49,9 @@ pip install transformers
 pip install lmdb
 pip install seqeval
 pip install openai
+pip install fastchat
+pip install psutil
+pip install accelerate
 
 pip install -e .
 ```

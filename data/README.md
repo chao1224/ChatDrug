@@ -20,7 +20,7 @@ And then do the following for dataset and evaluation preparation.
 - We provide most of the pretrained datasets in `peptide`. You only need to download the `Data_S3.csv` from [this link](https://github.com/minrq/pMHC/blob/main/data/mhcflurry/Data_S3.csv).
 - If you want to do the data preprocessing yourself, please refer to the following:
 ```
-cd peptide_editing
+cd peptide
 python preprocess_step_1_data_extraction.py
 python preprocess_step_2_single_prop.py
 python preprocess_step_3_multi_prop.py
@@ -35,7 +35,7 @@ python preprocess_step_3_multi_prop.py
 
 ```
 .
-├── peptide_editing
+├── peptide
 │   ├── class1_pseudosequences.csv
 │   ├── Data_S3.csv
 │   ├── models_class1_presentation
@@ -51,7 +51,7 @@ python preprocess_step_3_multi_prop.py
 │   ├── preprocess_step_2_single_prop.py
 │   ├── preprocess_step_3_multi_prop.py
 │   └── selected_alleles.txt
-├── protein_editing
+├── protein
 │   ├── downstream_datasets
 │   │   └── secondary_structure
 │   │       ├── secondary_structure_casp12.lmdb
